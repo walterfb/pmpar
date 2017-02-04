@@ -1,0 +1,54 @@
+Version 1.0	Sep 6, 2000
+
+	First public release.  The program does everything that it really
+	needs too.  Possible improvements to do include overhauling the code
+	to clean it up, allowing covariant error bars, doing likelyhood
+	analysis, examining the covariance matrix, allowing multiple
+	files to be processed together.
+	
+Version 1.1	Nov 29, 2000
+
+	Minor update, mostly for better functionality with other code.
+	o Prints transverse velocity (error bar on this is a todo)
+	o Prints galactic coordinates
+	o parallaxplot.py now can do multiple pulsars.  Bugfixes.
+	o parallaxplot.py now can plot xy plots.  Use 'x' to options to use
+	o allow -z and -s to be run without stop and inc
+	o update example / documentation
+	o added neplot.py to make a polar plot with several pulsars
+		labeling the pulsar and ne
+	o added -c option to print covariance matrix
+
+Version 1.2	Dec 19, 2000
+
+	Major bug fix.  This is an URGENT upgrade.  See README for details.
+	o All internal calculations done in true milliarcseconds now.
+	o parallaxplot.py cleanups.  
+	  - Allow 'e' option for equal plot ranges when doing multiple plots
+	  - Added 'l' option to enable epoch labels	
+	o Added GPL licence to distribution in file LICENSE.  This
+		applies to every file included in this distribution.
+
+Version 1.3	Jan 11, 2001
+
+	o Minor additional PM output: mu_b and mu_b calculated
+
+Version 1.4	Feb 27, 2001
+
+	o Major bug fixed!  URGENT upgrade.  The bug affects the
+	  right ascension weights of high |dec| pulsars
+	o Better interoperability with other code
+	o parallaxplot.py upgrades
+	o Biggles aspect ratio plot bug workaround
+
+Version 1.5	Dec 13, 2002
+
+	o Richard Dodson found a bug in muequ2gal.  Fixed.
+	o Note that mu_a == mu_ra*cos(dec)
+
+Version 1.6	Feb 3, 2017
+
+	o Automake and autoheader used now
+	o Some code cleanup
+	o License files to each source file
+	o Prep for hosting on github

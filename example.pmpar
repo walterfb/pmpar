@@ -1,0 +1,14 @@
+# This is an example file for pmpar.  This is actual vlba data that was
+# published Oct 1, 2000 in Astrophysical Journal.
+
+name  = B0950+08
+ref   = J0946+1017
+dm    = 2.9702
+epoch = 2000.0
+
+# Positions
+1998.331  09:53:09.30708  0.00003  07:55:36.0994 0.0003 # bf040a 
+1998.337  09:53:09.30709  0.00003  07:55:36.0996 0.0003 # bf040b
+1998.874  09:53:09.30750  0.00002  07:55:36.1133 0.0002 # bf046
+1999.373  09:53:09.30696  0.00002  07:55:36.1301 0.0002 # bb106
+

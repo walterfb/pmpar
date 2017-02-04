@@ -1,0 +1,55 @@
+
+To do bootstrap Monte-Carlo iterations of pmpar, use the program
+called bootstrap_pmpar.  This program runs pmpar and thus pmpar 
+needs to be in your path.  Version 1.6 or greater of pmpar is needed.
+
+The imput file should be a .dat file such as B0031-07.dat included in 
+this directory.
+
+Usage is described by running bootstrap_pmpar with no command line
+parameters:
+
+...............................................
+
+parallax<143>% bootstrap_pmpar
+bootstrap_pmpar version 1.0 -- Walter Brisken 20070124
+
+Usage : bootstrap_pmpar <input file> <ifnum> [<num iterations>]
+
+  <input file> is of .dat format
+  <ifnum> is integer between 1 and 16, or "all" for all IFs
+  <num interations> is integer > 0 [optional -- default = 1000]
+
+Output is sent to stdout.  The 11 columns of output are:
+  1.  RA (in seconds of time)
+  2.  sigma RA (in seconds of time)
+  3.  Dec (in arcsec)
+  4.  sigma Dec (in arcsec)
+  5.  mu_a (in mas/yr)
+  6.  sigma mu_a (in mas/yr)
+  7.  mu_d (in mas/yr)
+  8.  sigma mu_d (in mas/yr)
+  9.  pi (in mas)
+  10. sigma pi (in mas)
+  11. epoch mask -- list of epoch numbers used (0-based)
+
+Note that pmpar version 1.6 or greater must be in your path
+
+...............................................
+
+
+For example:
+
+bootstrap_pmpar B0031-07.dat 1 10 > B0031-07.bmc
+
+This will select IF 1 from the .dat file, run 10 iterations of
+bootstrap montecarlo and redirect the output to B0031-07.bmc .
+The output file will be 11 lines long.  The first line is the
+result of pmpar using each selected epoch once.
+
+All IFs can be combined together with:
+
+bootstrap_pmpar B0031-07.dat all 10 > B0031-07.bmc
+
+Note that for useful tests many thousand iterations should be 
+done.

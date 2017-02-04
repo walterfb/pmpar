@@ -1,0 +1,157 @@
+#!/bin/env python
+
+from pyx import *
+from pyx.graph import axis
+from math import *
+from os import system, popen
+from sys import argv, exit
+from string import *
+
+text.set(fontmaps="psfonts.cmz",mode="latex")
+
+docolor = 0
+mjd = 1
+
+def ellipse(g, datum):
+	p = g.pos(datum[1], datum[3])
+	px = g.pos(datum[1]+datum[2], datum[3])
+	py = g.pos(datum[1], datum[3]+datum[4])
+	cir = path.circle(p[0], p[1], 1.0)
+	tr = trafo.scale(px[0]-p[0], py[1]-p[1], p[0], p[1])
+	eli = cir.transformed(tr)
+	return eli
+
+def axlen(data, x, y, ratio=1.0):
+	a1 = 1.e10
+	a2 = -1.e10
+	b1 = 1.e10
+	b2 = -1.e10
+	for d in data:
+		a = d[x]
+		b = d[y]
+		if a < a1:
+			a1 = a
+		if a > a2:
+			a2 = a
+		if b < b1:
+			b1 = b
+		if b > b2:
+			b2 = b
+	da = a2-a1
+	db = b2-b1
+	a1 = a1-1.0-0.1*da
+	a2 = a2+1.0+0.1*da
+	b1 = b1-1.0-0.04*db
+	b2 = b2+1.0+0.16*db
+	a1 = a1/ratio
+	a2 = a2/ratio
+	da = a2-a1
+	db = b2-b1
+	delta = db-da
+	if delta > 0.:
+		a1 = a1-delta*0.5
+		a2 = a2+delta*0.5
+	else:
+		b1 = b1+delta*0.5
+		b2 = b2-delta*0.5
+	return a1*ratio, a2*ratio, b1, b2
+
+class Fit:
+	name = ''
+	pi = 0.0
+	dpi = 0.0
+	mu_a = 0.0
+	dmu_a = 0.0
+	mu_d = 0.0
+	dmu_d = 0.0
+	filename = ''
+	tdata = []
+	edata = []
+	
+	def gendata(self, options):
+		if options == '':
+			system('pmpar %s -o' % self.filename)
+		else:
+			system('pmpar %s %s' % (self.filename, options))
+		t = open('pmpar_t', 'r').readlines()
+		e = open('pmpar_e', 'r').readlines()
+		self.tdata = []
+		self.edata = []
+		for d in t:
+			s = split(strip(d))
+			self.tdata.append([float(s[0]), float(s[1]), float(s[2])])
+		for d in e:
+			s = split(strip(d))
+			self.edata.append([float(s[0]), float(s[1]), float(s[2]), float(s[3]), float(s[4])])
+	def __init__(self, fn, options=''):
+		self.filename = fn
+		cmd = 'pmpar %s' % fn
+		output = popen(cmd, 'r').readlines()
+		for l in output:
+			s = split(strip(l))
+			if len(s) < 3:
+				continue
+			if s[0] == 'Name':
+				self.name = s[2]
+			if len(s) < 5:
+				continue
+			elif s[0] == 'mu_a':
+				self.mu_a = float(s[2])
+				self.dmu_a = float(s[4])
+			elif s[0] == 'mu_d':
+				self.mu_d = float(s[2])
+				self.dmu_d = float(s[4])
+			elif s[0] == 'pi':
+				self.pi = float(s[2])
+				self.dpi = float(s[4])
+		self.gendata(options)
+	def mu_a_str(self):
+		return "$\\mu_{\\alpha}=%4.2f\\pm%4.2f$ mas~yr$^{-1}$" % \
+			(self.mu_a, self.dmu_a)
+	def mu_d_str(self):
+		return "$\\mu_{\\delta}=%4.2f\\pm%4.2f$ mas~yr$^{-1}$" % \
+			(self.mu_d, self.dmu_d)
+	def pi_str(self):
+		return "$\\pi=%4.2f\\pm%4.2f$ mas" % \
+			(self.pi, self.dpi)
+	def plotxy(self):
+		print 'writeme!'
+	def plot(self, w=6.0, r=1.0):
+		h = w/r;
+		x1, x2, y1, y2 = axlen(self.tdata, 1, 2, r)
+		xa = axis.linear(reverse=1,title="$\Delta \\alpha$ [mas]",
+			min=x1, max=x2)
+		ya = axis.linear(title="$\Delta \\delta$ [mas]",
+			min=y1, max=y2)
+		g = graph.graphxy(width=w, ratio=r, x=xa, y=ya)
+		g.plot(graph.data.file('pmpar_t', x=2, y=3), [graph.style.line()])
+		g.text(0.35, h-0.4, self.mu_a_str())
+		g.text(0.35, h-0.75, self.mu_d_str())
+		g.text(0.35, h-1.1, self.pi_str())
+		for d in self.edata:
+			g.stroke(ellipse(g, d))
+		g.writeEPSfile('%s.eps' % self.name)
+
+
+if len(argv) < 2:
+	print 'Usage : %s <pmpar file> [<options>]' % argv[0]
+	exit(0)
+
+if len(argv) > 2:
+	opts = argv[2]
+else:
+	opts = '-o'
+
+f = Fit(argv[1], opts)
+
+if find(opts, 'a') > 0:
+	ratio = 0.5
+elif find(opts, 'A') > 0:
+	ratio = 2.0
+else:
+	ratio = 1.0
+if find(opts, 'x') > 0:
+	f.plotxy()
+else:
+	f.plot(w=10.,r=ratio)
+	

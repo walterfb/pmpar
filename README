@@ -1,0 +1,62 @@
+
+				PMPAR
+
+Note:	Versions before 1.4 have serious bugs that incorrectly handles
+	all right ascensions.  For sources very close to zero declination
+	there will be no effect, but for sources more than 15 degrees 
+	from the equator are suspect to inconsistencies
+			
+
+This package contains source code for pmpar, the parallax and proper motion
+fitting program.  Please read pmpar.doc for usage information.
+The vert minimal homepage for this program is at
+http://nacho.princeton.edu/~walterfb/pmpar/pmpar.html .  This is where
+the latest version can be found.
+
+To install:
+
+1.	Prepare the gnu-style build system:
+
+aclocal
+autoconf
+autoheader
+automake -a
+
+2.	./configure
+
+Here you can pass options such as install paths if you like
+
+2.	make
+	
+This compiles pmpar and other code in this distribution.  No files are
+created outside this directory.
+
+3.	make install
+
+This copies the newly compiled software to its install_dir.  You may need
+to be root to install in some locations.
+
+
+Other Included Software
+
+There is a small collection of other tools in this distribution:
+
+parallaxplot.py - a python script to plot the parallax and proper motion
+solutions.  No documentation yet.  Please contact the author (see below)
+if help is needed.  Examples:
+
+	parallaxplot.py example.pmpar 
+	parallaxplot.py example.pmpar -om
+	parallaxplot.py example.pmpar -op
+
+
+The Biggles package for plotting in python is required to use this program.
+Go to http://biggles.sourceforge.net/ to learn more about it and how to
+install it.  It is very useful for python programmers needing to make
+scientific plots.
+
+neplot.py - a python script to produce a polar plot with distances and 
+n_e.  This script now requires pdf.py, not included here, for functionality.
+Please contact author if help is wanted.
+
+(C) 2000-2017  Walter Brisken  wbrisken@lbo.us

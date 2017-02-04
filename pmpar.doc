@@ -1,0 +1,132 @@
+PMPAR v 1.5
+
+	A proper motion / parallax fitting program
+
+Walter Brisken, Princeton University, Dec. 19, 2000
+
+
+How to use
+~~~~~~~~~~
+
+pmpar has 5 main modes.  The first thing pmpar does, no matter which mode it is
+in, is to use a least squares fitting to generate an internal model.  Several
+iterations are done since it is slightly non-linear, but quickly converging.
+The limitations of the model are due to the limited precision of double
+precision floating point and will introduce an error up to about 5 microarcsecs.
+All calculations are done in equinox 2000.0 coordinates.
+
+The input file used to generate the model has two sections -- the fixed 
+parameter section and the data section.  Both are not required, but if not
+enough information is included, the program will probably produce obviously
+erronious or ill-defined results.  Any line starting with a # sign is ignored.
+
+Here is a sample input file (example.pmpar included with pmpar):
+
+# This is an example file for pmpar.  This is actual vlba data that was
+# published Oct 1, 2000 in Astrophysical Journal.
+
+name  = B0950+08
+ref   = J0946+1017
+dm    = 2.9702
+epoch = 2000.0
+
+# Positions
+1998.331  09:53:09.30708  0.00003  07:55:36.0994 0.0003 # bf040a 
+1998.337  09:53:09.30709  0.00003  07:55:36.0996 0.0003 # bf040b
+1998.874  09:53:09.30750  0.00002  07:55:36.1133 0.0002 # bf046
+1999.373  09:53:09.30696  0.00002  07:55:36.1301 0.0002 # bb106
+
+
+Possible parameters are:
+
+	name :  The name of the object
+	ref :   The name of the reference source
+	epoch :	The epoch to be used when a date is needed.  default = 2000.0
+	RA :	The object's RA at the given epoch
+	Dec :	The object's Dec at the given epoch
+	mu_a :	The object's RA proper motion in mas/yr (mu_ra*cos(dec))
+	mu_d :	The object's Dec proper motion in mas/yr
+	pi :	The object's parallax
+	dm :	The dispersion measure (for pulsars)
+non-standard parameters:
+	break :	Specify an epoch when a change in coordinates happened
+	sh_x :	Fix the coordinate offsets in x for the break
+	sh_y :	Fix the coordinate offsets in y for the break
+	dmu_x :	Fix relative motions of coordinate systems in x for the break
+	dmu_y : Fix relative motions of coordinate systems in y for the break
+
+An optional equal sign can appear between these names and their values.
+
+The parameters not fixed are fitted for with the constraints of the given 
+parameters.
+
+Below describes how each of the 5 modes are used and examples:
+
+MODE 0	Printing the model
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+pmpar <file> [-c] [date1 [date2 [date3 ... ]]]
+
+This will simply print the model parameters and their uncertainties.
+Derived parameters such as distance and electron density are also shown
+when appropriate.  Using the -c option will also print the normalized 
+covariance matrix.  Appending the dates to the command line will print
+the objects position on the dates given.
+
+MODE 1  Predicting path of object as seen from earth
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pmpar <file> -z start_epoch [stop_epoch delta_epoch [sigx sigy]]
+
+Produces an ephemeris for the position of the object as seen from earth.  With
+the sigx and sigy, an output that can be used as input is produced.  This is
+useful for predicting the final errors before doing an experiment.  For 
+example, the following command can be used:
+
+pmpar <file> -z 1999.635 2000.635 0.25 0.0001 0.001 | pmpar -
+
+where the final - means take input from standard in, not a file.
+
+
+MODE 2  Predicting path of object as seen from sun
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pmpar <file> -s start_epoch [stop_epoch delta_epoch]
+
+Same as above without inclusion of parallax
+
+
+MODE 3  Determine when parallax extrema are
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pmpar <file> -m [center_epoch]
+
+The last two lines are usually the important ones.  Expect +-1 day error on
+these values since the observer's location on earth is not known and leapdays
+are not handled perfectly.  
+
+
+MODE 4  Produce plot files
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+pmpar <file> -o[p][m][s]
+
+pmpar <file> -o		output model and raw data
+pmpar <file> -op	output model and raw data with parallax removed
+pmpar <file> -om	output model and raw data with pm removed
+pmpar <file> -os	output model and raw data with break(shift) removed
+pmpar <file> -omp 	remove both
+pmpar <file> -opm	remove both
+
+
+Two files are generated : pmpar_e and pmpar_t containing the raw data and
+theoretical model.  Outputs have these formats:
+
+pmpar_e : epoch ra[mas] sigra[mas] dec[mas] sigdec[mas]
+pmpar_t : epoch ra[mas] dec[mas]
+
+When using the non-standard parameters, an additional option of using s in the
+-o command, eg -oms, will remove the break from the first coordinate system.
+
+MODE 5  Save data to .psr file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pmpar <file> -p
+
+This produces output that is useful for other astrometry code.
+
+
