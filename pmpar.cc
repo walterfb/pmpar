@@ -437,18 +437,18 @@ void gaussj9(double a[9][9], double b[9])
         for(int i = 0; i < 9; ++i)
         {
                 big = 0.0;
-                for(int j = 0; j < 9; ++j) 
+                for(int j = 0; j < 9; ++j)
 		{
 			if(ipiv[j] != 1) 
 			{
 				for(int k = 0; k < 9; ++k)
 				{
-				        if(ipiv[k] == 0)
-				        {
-				                if(fabs(a[j][k]) >= big)
-				                {
-				                        big = fabs(a[j][k]);
-						        irow=j;
+					if(ipiv[k] == 0)
+					{
+						if(fabs(a[j][k]) >= big)
+						{
+							big = fabs(a[j][k]);
+							irow=j;
 							icol=k;
 						}
 					}
@@ -457,45 +457,46 @@ void gaussj9(double a[9][9], double b[9])
 						return;
 					}
 				}
-				ipiv[icol]++;
-				if(irow != icol)
+			}
+		}
+                ++ipiv[icol];
+                if(irow != icol)
+                {
+                        for(int l = 0; l < 9; ++l)
+			{
+				SWAP(a[irow][l], a[icol][l])
+			}
+                        SWAP(b[irow], b[icol])
+                }
+                indxr[i]=irow;
+                indxc[i]=icol;
+                if(a[icol][icol] == 0.0)
+		{
+			return;
+		}
+                pivinv = 1.0/a[icol][icol];
+                a[icol][icol] = 1.0;
+                for(int l = 0; l < 9; ++l)
+		{
+			a[icol][l] *= pivinv;
+		}
+                b[icol] *= pivinv;
+                for(int ll = 0; ll < 9; ++ll) 
+		{
+			if(ll != icol)
+			{
+				dum = a[ll][icol];
+				a[ll][icol] = 0.0;
+				for(int l = 0; l < 9; ++l)
 				{
-					for(int l = 0; l < 9; ++l)
-					{
-						SWAP(a[irow][l],a[icol][l])
-					}
-					SWAP(b[irow], b[icol])
+					a[ll][l] -= a[icol][l]*dum;
 				}
-			        indxr[i]=irow;
-				indxc[i]=icol;
-			        if(a[icol][icol] == 0.0)
-				{
-					return;
-				}
-				pivinv = 1.0/a[icol][icol];
-			        a[icol][icol] = 1.0;
-			        for(int l = 0; l < 9; l++)
-				{
-					a[icol][l] *= pivinv;
-				}
-			        b[icol] *= pivinv;
-				for(int ll = 0; ll < 9; ++ll)
-				{
-					if(ll != icol)
-					{
-						dum = a[ll][icol];
-						a[ll][icol] = 0.0;
-						for(int l = 0; l < 9; ++l)
-						{
-							a[ll][l] -= a[icol][l]*dum;
-						}
-						b[ll] -= b[icol]*dum;
-					}
-				}
+				b[ll] -= b[icol]*dum;
 			}
 		}
 	}
 }
+
 	
 double dateconv(double ep)
 {
@@ -530,7 +531,6 @@ int loaddata(const char *fn, Pulsar &p)
 	int l;
 	char A[100], B[100], D[100];
 	double ep, sr, sd;
-	int n;
 	const char *s;
 
 	p.epoch = 999999.999;
@@ -568,6 +568,8 @@ int loaddata(const char *fn, Pulsar &p)
 	{
 		if(inplace)
 		{
+			int n;
+
 			for(n = 0; s[n] != 0 && s[n] != ';'; ++n);
 			if(s[n] == 0)
 			{
