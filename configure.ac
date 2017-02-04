@@ -10,4 +10,4 @@ AC_PROG_CXX
 dnl Checks for libraries.
 AC_CHECK_LIB(m, erf,,[AC_MSG_ERROR("need libm")])
 
-AC_OUTPUT(Makefile pmparver.h)
+AC_OUTPUT(Makefile)
