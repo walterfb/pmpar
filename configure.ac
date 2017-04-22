@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([pmpar], [1.6], [Walter Brisken <wbrisken@lbo.us>])
+AC_INIT([pmpar], [1.7], [Walter Brisken <wbrisken@lbo.us>])
 AM_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([foreign])

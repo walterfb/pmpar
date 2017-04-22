@@ -52,3 +52,7 @@ Version 1.6	Feb 3, 2017
 	o Some code cleanup
 	o License files to each source file
 	o Prep for hosting on github
+
+Version 1.r76	Apr 22, 2017
+
+	o Dec parse error for values between -1 and 0 degrees

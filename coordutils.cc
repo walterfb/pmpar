@@ -139,7 +139,7 @@ double text2double(const char *str)
 		if(sscanf(str, "%lf:%lf:%lf", &h, &m, &s) == 3) 
 		{
 			ret = fabs(h) + m/60.0 + s/3600.0;
-			if(h < 0)
+			if(str[0] == '-')
 			{
 				ret = -ret;
 			}
