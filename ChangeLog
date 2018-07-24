@@ -53,6 +53,11 @@ Version 1.6	Feb 3, 2017
 	o License files to each source file
 	o Prep for hosting on github
 
-Version 1.r76	Apr 22, 2017
+Version 1.7	Apr 22, 2017
 
 	o Dec parse error for values between -1 and 0 degrees
+
+Version 1.8
+
+	o Change to use Julian Year = 365.25 rather than tropical year
+	o Fix year to MJD conversion

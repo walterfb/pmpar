@@ -1,4 +1,4 @@
-/*  Copyright (C) 2000-2017 Walter Brisken  wbrisken@lbo.us
+/*  Copyright (C) 2000-2018 Walter Brisken  wbrisken@lbo.us
  *
  *  This file is part of pmpar.
  *
@@ -25,6 +25,7 @@
 #include "config.h"
 
 #define MAXEPOCHS	400
+#define JULIANYEAR	365.25	/* Julian year is exactly 365.25 days */
 
 void getab(double day, double ra, double dec, double *pi_a, double *pi_d);
 void printday(double mjd, int opt = 0);
@@ -143,7 +144,7 @@ public:
 	{ 
 		double res;
 		
-		res = a_0 + mu_a*(t-epoch)/cos(d_0)/365.242175; 
+		res = a_0 + mu_a*(t-epoch)/cos(d_0)/JULIANYEAR; 
 		if(epoch < breaktime)
 		{
 			res += (sh_x + dmu_x*(t-epoch))/cos(d_0);
@@ -155,7 +156,7 @@ public:
 	{ 
 		double res;
 		
-		res = d_0 + mu_d*(t-epoch)/365.242175; 
+		res = d_0 + mu_d*(t-epoch)/JULIANYEAR; 
 		if(epoch < breaktime)
 		{
 			res += (sh_y + dmu_y*(t-epoch));
@@ -193,8 +194,8 @@ public:
 		}
 		if(!dropm)
 		{
-			a1 += mu_a*(t-epoch)/365.242175;
-			d1 += mu_d*(t-epoch)/365.242175;
+			a1 += mu_a*(t-epoch)/JULIANYEAR;
+			d1 += mu_d*(t-epoch)/JULIANYEAR;
 		}
 		if(!dropp)
 		{
@@ -208,8 +209,8 @@ public:
 		}
 		if(!drops) if(t < breaktime)
 		{
-			a1 += (sh_x + dmu_x*(t-epoch)/365.242175);
-			d1 += (sh_y + dmu_y*(t-epoch)/365.242175);
+			a1 += (sh_x + dmu_x*(t-epoch)/JULIANYEAR);
+			d1 += (sh_y + dmu_y*(t-epoch)/JULIANYEAR);
 		}
 		*x = a1*MAS_RAD;
 		*y = d1*MAS_RAD;
@@ -221,8 +222,8 @@ public:
 
 		if(dropm)
 		{
-			a1 -= mu_a*(t-epoch)/365.242175;
-			d1 -= mu_d*(t-epoch)/365.242175;
+			a1 -= mu_a*(t-epoch)/JULIANYEAR;
+			d1 -= mu_d*(t-epoch)/JULIANYEAR;
 		}
 		if(dropp)
 		{
@@ -236,8 +237,8 @@ public:
 		}
 		if(drops) if(t < breaktime)
 		{
-			a1 += (sh_x + dmu_x*(t-epoch)/365.242175);
-			d1 += (sh_y + dmu_y*(t-epoch)/365.242175);
+			a1 += (sh_x + dmu_x*(t-epoch)/JULIANYEAR);
+			d1 += (sh_y + dmu_y*(t-epoch)/JULIANYEAR);
 		}
 		*x = a1*MAS_RAD;
 		*y = d1*MAS_RAD;
@@ -497,6 +498,21 @@ void gaussj9(double a[9][9], double b[9])
 	}
 }
 
+double year2mjd(double yr)
+{
+	int nyr, nyr1;
+	int l2;	/* l2 is -1 if leap year, -2 if not */
+	int nd;	/* num days in year */
+	double nyrd;	/* day of year */
+
+	nyr = (int)yr;
+	nyr1 = nyr - 1;
+	l2 = nyr/4-(nyr+7)/4-nyr/100+(nyr+99)/100+nyr/400-(nyr+399)/400;
+	nd = 367 + l2;
+	nyrd = (yr - nyr)*nd + 1.0;
+
+	return nyrd-678576+365*nyr1+nyr1/4-nyr1/100+nyr1/400;
+}
 	
 double dateconv(double ep)
 {
@@ -506,17 +522,7 @@ double dateconv(double ep)
 	}
 	else if(ep < 4000.0) 
 	{
-		double nd;
-
-		if((int)ep % 4 == 0)
-		{
-			nd = 366.0;
-		}
-		else
-		{
-			nd = 365.0;
-		}
-		return (ep-2000.0)*nd + 51544;
+		return year2mjd(ep);
 	}
 	else
 	{
@@ -807,7 +813,7 @@ Pulsar fit(Pulsar p)
 
 		fa[0] = 1.0;
 		fa[1] = 0.0;
-		fa[2] = (epoch[e] - p.epoch)/cos(pd)/365.242175;
+		fa[2] = (epoch[e] - p.epoch)/cos(pd)/JULIANYEAR;
 		fa[3] = 0.0;
 		fa[4] = pi_a/cos(pd);
 		fa[5] = 0.0;
@@ -818,7 +824,7 @@ Pulsar fit(Pulsar p)
 		fd[0] = 0.0;
 		fd[1] = 1.0;
 		fd[2] = 0.0;
-		fd[3] = (epoch[e] - p.epoch)/365.242175;
+		fd[3] = (epoch[e] - p.epoch)/JULIANYEAR;
 		fd[4] = pi_d;
 		fd[5] = 0.0;
 		fd[6] = 0.0;
@@ -828,8 +834,8 @@ Pulsar fit(Pulsar p)
 		{
 			fa[5] = 1.0/cos(pd);
 			fd[6] = 1.0;
-			fa[7] = (epoch[e] - p.epoch)/cos(pd)/365.242175;
-			fd[8] = (epoch[e] - p.epoch)/365.242175;
+			fa[7] = (epoch[e] - p.epoch)/cos(pd)/JULIANYEAR;
+			fd[8] = (epoch[e] - p.epoch)/JULIANYEAR;
 		}
 
 		for(int i = 0; i < 9; ++i) 
@@ -1024,7 +1030,7 @@ void predictearth(Pulsar *model, int argc, char **argv)
 	start = atof(argv[3]);
 	if(start < 4000.0)
 	{
-		f = 365.242175;
+		f = JULIANYEAR;
 	}
 	else
 	{
@@ -1087,7 +1093,7 @@ void predictsun(Pulsar *model, int argc, char **argv)
 	start = atof(argv[3]);
 	if(start < 4000.0)
 	{
-		f = 365.242175;
+		f = JULIANYEAR;
 	}
 	else
 	{
